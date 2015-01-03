@@ -1,0 +1,41 @@
+<body>
+  <div class="container">
+
+    <form class="new-task">
+      <input type="text" name="nam" placeholder="Name of the data element" />
+      <select name="typ">
+        <option value="text">text</option>
+        <option value="input">input</option>
+        <option value="select">select</option>
+        <option value="date">date</option>
+      </select>
+      <input type="text" name="txt" placeholder="Text" />
+      <input type="text" name="opt" placeholder="Options" />
+      <input type="submit" value="Add/Change">
+    </form>
+   <form class="data-navigate">
+     <button class="back">Back</button>
+     <button class="next">Next</button>
+     {{index}}
+   </form>
+   <form class="data-record">
+      {{#each tasks}}
+        <button class="delete">&times;</button>
+        {{#if isdate this}}
+          {{> date}}
+        {{else}}
+          {{> task}}
+        {{/if}}
+      {{/each}}
+      <input type="submit" value="Add/Change">
+   </form>
+
+  </div>
+</body>
+
+<template name="task">
+    {{{makeTask this data}}}
+</template>
+<template name="date">
+    {{{makeDate this data}}}
+</template>
