@@ -26,7 +26,7 @@ if (Meteor.isClient) {
       Session.set("dataindex", 0);
       var doc = Data.findOne({_id:ids[0]});
       Session.set("document", doc);
-    }, 1000);
+    }, 2000);
   });
 
   // This code only runs on the client
