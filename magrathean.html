@@ -1,6 +1,6 @@
 <body>
   <div class="container">
-
+    Add controls by entering a name for the data element, (e.g. firstName), then selecting a type, then entering a label (e.g. First Name), then, for select type, enter a list of options separated by comma (e.g. Detroit,Cleveland,Miami,Sarasota).<br>
     <form class="new-task">
       <input type="text" name="nam" placeholder="Name of the data element" />
       <select name="typ">
@@ -9,33 +9,80 @@
         <option value="select">select</option>
         <option value="date">date</option>
       </select>
-      <input type="text" name="txt" placeholder="Text" />
-      <input type="text" name="opt" placeholder="Options" />
-      <input type="submit" value="Add/Change">
+      <input type="text" name="txt" placeholder="Label" />
+      <input type="text" name="opt" placeholder="Options for select" />
+      <input type="submit" value="Add/Change Control">
     </form>
    <form class="data-navigate">
+     The Back and Next buttons move through records entered for the form below. The record number is displayed after the buttons.<br>
      <button class="back">Back</button>
      <button class="next">Next</button>
-     {{index}}
+     {{> index}}
    </form>
    <form class="data-record">
-      {{#each tasks}}
-        <button class="delete">&times;</button>
-        {{#if isdate this}}
-          {{> date}}
-        {{else}}
-          {{> task}}
-        {{/if}}
-      {{/each}}
-      <input type="submit" value="Add/Change">
+      {{> controls}}
+      After entering or changing the values of the controls, click this Add/Change button to save the changes to the database.<br>
+      <input type="submit" value="Add/Change Record">
    </form>
-
   </div>
 </body>
 
-<template name="task">
-    {{{makeTask this data}}}
+<template name="index">
+  {{index}}
+</template>
+<template name="controls">
+      {{#each tasks}}
+        <button class="delete">&times;</button>
+        {{> label}}
+        {{#if istext typ }}
+          {{> text}}
+        {{else}}
+          {{#if isinput typ}}
+            {{> input}}
+          {{else}}
+            {{#if isselect typ}}
+              {{> select}}
+            {{else}}
+              {{#if isdate typ}}
+                {{> date}}
+              {{else}}
+                Type {{typ}} not implemented.
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        {{/if}}
+        <br>
+      {{/each}}
+</template>
+<template name="label">
+        {{txt}} ({{nam}}:{{typ}})
+</template>
+<template name="text">
+</template>
+<template name="input">
+          <input 
+            name="{{nam}}"
+            value="{{data nam 0 0}}"
+          >
+</template>
+<template name="select">
+            <select 
+              name="{{nam}}"
+              value="{{data nam}}"
+            >
+              {{#each options opt}}
+                <option value="{{this}}"
+                  {{data ../nam this 'selected'}} 
+                  >
+                {{this}}
+                </option>
+              {{/each}}
+            </select>
 </template>
 <template name="date">
-    {{{makeDate this data}}}
+              <input 
+                class="datepicker" 
+                name="{{nam}}"
+                value="{{data nam 0 0}}"
+              >
 </template>
