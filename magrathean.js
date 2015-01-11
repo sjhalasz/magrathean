@@ -2,7 +2,6 @@
 // sjhalasz@gmail.com
 
 Tasks = new Mongo.Collection("tasks");
-Data = new Mongo.Collection("data");
 
 function escapeHTML(html) {
   var text = document.createTextNode(html);
@@ -14,77 +13,48 @@ function escapeHTML(html) {
 if (Meteor.isClient) {
 
   Meteor.startup(function(){
-    setTimeout(function(){
-      var cursor = Data.find({}, {sort: {_id: 1}});
-      var ids = [];
-      cursor.forEach(
-        function(d) { 
-          ids.push(d._id);
-        }
-      );
-      Session.set("ids", ids);
-      Session.set("dataindex", 0);
-      var doc = Data.findOne({_id:ids[0]});
-      Session.set("document", doc);
-    }, 2000);
+    Session.set("dataindex", 0);
   });
 
-  // This code only runs on the client
-  Template.body.helpers({
-    tasks: function () {return Tasks.find({});},
+  Template.index.helpers({
     index: function() {return Session.get("dataindex");},
-    isdate:function(a) {return a.typ == 'date';}
   });
 
-UI.registerHelper("makeTask", function (a, d) {
-  z = a.txt + '(' + a.nam + ':' + a.typ + ') ';
-  switch(a.typ) {
-    case 'text':
-      break;
-    case 'input':
-      z = z + '<input ';
-      z = z + 'name="' + a.nam + '" ';
-      if(d && d[a.nam]) {
-        z = z + 'value="' + d[a.nam] + '" ';
-      }
-      z = z + '>';
-      break;
-    case 'select':
-      z = z + '<select name="' + a.nam + '">';
-      var opt = a.opt.split(',');
-      for(var i = 0 ; i < opt.length ; i++) {
-        z = z + '<option value="' + opt[i] + '"';
-        if(d && d[a.nam] == opt[i]) 
-          z = z + " selected";
-        z = z + '>' + opt[i] + '</option>';
-      }
-      z = z + '</select>';
-      break;
-    case 'date':
-      z = z + '<input class="datepicker" ';
-      z = z + 'name="' + a.nam + '" ';
-      z = z + 'onfocusin="$(this).datepicker();" ';
-      if(d && d[a.nam]) {
-        z = z + 'value="' + d[a.nam] + '" ';
-      }
-      z = z + '>';
-      break;
-    default:
-      z = '';
-  }
-  return z + '<br>';
-});
+  Template.controls.helpers({
+    tasks: function () {return Tasks.find({});},
+    isdate:function(typ) {return typ == 'date';},
+    istext:function(typ) {return typ == 'text';},
+    isinput:function(typ) {return typ == 'input';},
+    isselect:function(typ) {return typ == 'select';},
+  });
 
-UI.registerHelper("makeDate", function (a, d) {
-  z = a.txt + '(' + a.nam + ':' + a.typ + ') ';
-  z = z + '<input class="datepicker" ';
-  z = z + 'name="' + a.nam + '" ';
-  if(d && d[a.nam]) {
-    z = z + 'value="' + d[a.nam] + '" ';
+Handlebars.registerHelper(
+    'data', function(nam, val, txt) {
+      var index = Session.get('dataindex');
+      var doc = Tasks.findOne(
+        {'nam': nam},
+        {'dat':1}
+      );
+      var dat = doc ? doc.dat : [];
+      dat = $.grep(dat, function(e) { 
+        return e.index === index
+      });
+      dat = dat ? dat[0].data : '';
+      if(val) return (dat === val) ? txt : '';
+      return dat;
+    }
+);
+
+Template.select.helpers({
+  "options": function(opt) {
+      return opt.split(',');
+    },
+  "datequals": function(val, txt) {
+      var dat = Session.get('dat');
+      return (dat == val) ? txt : '';
+    }
   }
-  z = z + '>';
-  return z + '<br>';
-});
+);
 
 Template.date.rendered = function() {
   $(".datepicker").datepicker();
@@ -104,10 +74,12 @@ Template.body.events({
     if(doc) {
       Tasks.update(
         { _id: doc._id },
-        { nam: nam,
+        { $set: {
+          nam: nam,
           typ: typ,
           txt: txt,
           opt: opt
+          }
         }
       );
     } else {
@@ -115,7 +87,8 @@ Template.body.events({
         { nam: nam,
           typ: typ,
           txt: txt,
-          opt: opt
+          opt: opt,
+          dat: []
         }
       );
     }
@@ -131,65 +104,52 @@ Template.body.events({
   },
 
   "submit .data-record": function (event) {
-    // This function is called when a data record is appended
+    // This function is called when a data record is 
+    // appended or changed
 
-    var x = {};
+    //var x = {};
     var name;
     var i;
+    var doc;
+    var index = Session.get("dataindex");
+    var value;
     for(i = 0 ; i < event.target.length ; i++) {
       name = event.target[i].name;
-      if(0 != name.length) {
-        x[name] = event.target[i].value;
+      if(name) {
+        value = event.target[i].value;
+        doc = Tasks.findOne({'nam':name});
+        Tasks.update( // remove this index
+          {'_id': doc._id},
+          {'$pull': {'dat': {'index':index}}}
+        );
+        Tasks.update( // add it back with new value
+          {'_id': doc._id},
+          {'$addToSet':{'dat':{'index':index,'data':value}}}
+        ); 
       }
-    }
-    var ids = Session.get("ids");
-    var index = Session.get("dataindex");
-    if(index > ids.length) {
-      Data.insert(x);
-    } else {
-      Data.update(
-        { _id: ids[index] },
-        x
-      );
     }
     // Prevent default form submit
     return false;
   },
   "click .back":function() {
      var index = Session.get("dataindex");
-     var ids = Session.get("ids");
      if(index != 0) {
        index--;
        Session.set("dataindex", index);
-       var doc = Data.findOne({_id:ids[index]});
-       Session.set("document", doc);
      }
      return false;
   },
   "click .next":function() {
      var index = Session.get("dataindex");
      var ids = Session.get("ids");
-     if(index < ids.length) {
-       index++;
-       Session.set("dataindex", index);
-       var doc = Data.findOne({_id:ids[index]});
-       Session.set("document", doc);
-     }
+     index++;
+     Session.set("dataindex", index);
      return false;
-  }
-});
-
-Template.body.events({
+  },
   "click .delete": function () {
     Tasks.remove(this._id);
   }
 
-});
-
-Template.task.helpers({
-  "data": function() {
-    return Session.get("document");
-  }
 });
 
 }
