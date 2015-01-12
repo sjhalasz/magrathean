@@ -104,9 +104,9 @@ Template.select.helpers({
 
 // **************************** event handler code ********************************
 
-// this callback when date template is rendered initializes JQuery UI datepicker
-// (sloppy, should only be called on current instance, not
-//   redundantly on all date controls)
+// this callback when date template is rendered initializes JQuery UI datepicker;
+// sloppy, should only be called on current instance, not
+//   redundantly on all date controls;
 // but... I can't get anything else to work
 Template.date.rendered = function() {
   $(".datepicker").datepicker();
