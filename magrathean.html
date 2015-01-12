@@ -12,36 +12,46 @@ This application lets you interactively add, change, or delete controls on a for
   select - Drop-down selector.
   date   - Implements the JQuery UI datepicker.
   
-  
 To add a control, you enter a name in the name field, which will become the name of the control. You choose the type and 
-then enter a label. If the type is select, you also enter the options separated by comma. Then clicking on the han`` the
-
+then enter a label. If the type is select, you also enter the options separated by comma. Then clicking on the 
+Add/Change Control button adds the control to the form. To change a control, use the same name with different parameters.
 
 Each control has an x button in front for deleting the control.
 
+You enter data into the form for a record and click the Add/Change Record button to save it. Use the Back and Next 
+buttons to navigate through the records. The current record number is displayed after the Next button. If you navigate
+forward to an empty record, you will add a record, otherwise you will be changing an existing record.
 
 -->
 <body>
   <div class="container">
     Add controls by entering a name for the data element, (e.g. firstName), then selecting a type, then entering a label (e.g. First Name), then, for select type, enter a list of options separated by comma (e.g. Detroit,Cleveland,Miami,Sarasota).<br>
-    <form class="new-task">
-      <input type="text" name="nam" placeholder="Name of the data element" />
+    <!-- Form for adding a new control -->
+    <form class="new-control">
+      <!-- Input for the name of the control  -->
+      <input type="text" name="nam" placeholder="Name of the control" />
+      <!-- Select for the type of the control  -->
       <select name="typ">
-        <option value="text">text</option>
-        <option value="input">input</option>
-        <option value="select">select</option>
-        <option value="date">date</option>
+        <option value="text">text</option> <!-- Just text that's displayed, not really a control -->
+        <option value="input">input</option> <!-- A text input control  -->
+        <option value="select">select</option> <!-- A select control -->
+        <option value="date">date</option> <!-- A JQuery UI datepicker control  -->
       </select>
+      <!-- Input for the label for the control  -->
       <input type="text" name="txt" placeholder="Label" />
+      <!-- Input for the options if this is a select control, comma separated text  -->
       <input type="text" name="opt" placeholder="Options for select" />
+      <!-- Button to add a control, or, if the name used is the same as an existing control, to change it   -->
       <input type="submit" value="Add/Change Control">
     </form>
+   <!-- Form to navigate through data records  -->
    <form class="data-navigate">
      The Back and Next buttons move through records entered for the form below. The record number is displayed after the buttons.<br>
-     <button class="back">Back</button>
-     <button class="next">Next</button>
+     <button class="back">Back</button> <!-- Button to navigate to previous record   -->
+     <button class="next">Next</button> <!-- Button to navigate to next record or to a new record  -->
      {{> index}}
    </form>
+   <!--  -->
    <form class="data-record">
       {{> controls}}
       After entering or changing the values of the controls, click this Add/Change button to save the changes to the database.<br>
