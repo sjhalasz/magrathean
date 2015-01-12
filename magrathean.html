@@ -51,15 +51,18 @@ forward to an empty record, you will add a record, otherwise you will be changin
      <button class="next">Next</button> <!-- Button to navigate to next record or to a new record  -->
      {{> index}}
    </form>
-   <!--  -->
+   <!-- Form to enter data for a record -->
    <form class="data-record">
+      <!--  -->
       {{> controls}}
       After entering or changing the values of the controls, click this Add/Change button to save the changes to the database.<br>
+     <!--  -->
       <input type="submit" value="Add/Change Record">
    </form>
   </div>
 </body>
 
+<!--  -->
 <template name="index">
   {{index}}
 </template>
