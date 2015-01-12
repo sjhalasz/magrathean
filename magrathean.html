@@ -1,44 +1,61 @@
 <!--
 magrathean.html
-An exercise for learning Meteor (see meteor.com).
+An exercise for learning Meteor (see meteor.com for explanation of Meteor).
 sjhalasz@gmail.com
 
-This is the html file. It is saved in the Meteor directory together with magrathean.js file.
+This is the Meteor html file. It is saved in the Meteor directory together with
+the magrathean.js file.
 
-This application lets you interactively add, change, or delete controls on a form. It currently supports 4 control types:
+This application lets you interactively add, change, or delete controls on a form. 
+I call the controls that the user can add, change or delete 'soft controls',
+as opposed to 'hard controls' the user can't change that are used to define 
+the 'soft controls'.
 
-  text - Simply inserts text in the form, not really a control.
-  input - Text input.
-  select - Drop-down selector.
-  date   - Implements the JQuery UI datepicker.
+This version currently supports adding/changing/deleting 4 soft control types:
+
+  text   - Simply inserts text in the form (not really a control).
+  input  - Input of text values.
+  select - Drop-down options selector.
+  date   - Text input control that implements the JQuery UI datepicker.
   
-To add a control, you enter a name in the name field, which will become the name of the control. You choose the type and 
-then enter a label. If the type is select, you also enter the options separated by comma. Then clicking on the 
-Add/Change Control button adds the control to the form. To change a control, use the same name with different parameters.
+To add a soft control, you enter a name in the (hard control) name field, 
+which will become the name of the soft control. You choose the type and 
+then enter a label. If the type is select, you also enter the options separated 
+by comma. Then, clicking on the Add/Change Control button adds the soft control 
+to the form. To change a soft control, use the same name with different parameters.
 
-Each control has an x button in front for deleting the control.
+Each soft control has an x button in front for deleting the control.
 
-You enter data into the form for a record and click the Add/Change Record button to save it. Use the Back and Next 
-buttons to navigate through the records. The current record number is displayed after the Next button. If you navigate
-forward to an empty record, you will add a record, otherwise you will be changing an existing record.
+You enter data into the soft form for a record and click the Add/Change Record button 
+to save it. Use the Back and Next buttons to navigate through the records. 
+The current record number is displayed after the Next button. If you navigate
+forward to an empty record, you will add a record, otherwise you will be 
+changing an existing record.
 
 -->
+
+<!-- The following is ordinary HTML but with references to Meteor templates e.g.
+     {{> my_template_name }}.  The templates themselves are defined at the 
+	 bottom of the file.
+-->
 <body>
+<!-- A container is recommended for Meteor -->
   <div class="container">
-    Add controls by entering a name for the data element, (e.g. firstName), then selecting a type, then entering a label (e.g. First Name), then, for select type, enter a list of options separated by comma (e.g. Detroit,Cleveland,Miami,Sarasota).<br>
+    Add controls by entering a name for the data element, (e.g. firstname), then selecting a type, then entering a label (e.g. First Name), then, for select type, enter a list of options separated by commas (e.g. Detroit,Cleveland,Miami,Sarasota).<br>
     <!-- Form for adding a new control -->
     <form class="new-control">
       <!-- Input for the name of the control  -->
       <input type="text" name="nam" placeholder="Name of the control" />
       <!-- Select for the type of the control  -->
       <select name="typ">
-        <option value="text">text</option> <!-- Just text that's displayed, not really a control -->
+        <option value="text">text</option> <!-- Just text that's displayed, 
+		                                        not really a control -->
         <option value="input">input</option> <!-- A text input control  -->
         <option value="select">select</option> <!-- A select control -->
         <option value="date">date</option> <!-- A JQuery UI datepicker control  -->
       </select>
       <!-- Input for the label for the control  -->
-      <input type="text" name="txt" placeholder="Label" />
+      <input type="text" name="lab" placeholder="Label" />
       <!-- Input for the options if this is a select control, comma separated text  -->
       <input type="text" name="opt" placeholder="Options for select" />
       <!-- Button to add a control, or, if the name used is the same as an existing control, to change it   -->
@@ -46,79 +63,128 @@ forward to an empty record, you will add a record, otherwise you will be changin
     </form>
    <!-- Form to navigate through data records  -->
    <form class="data-navigate">
-     The Back and Next buttons move through records entered for the form below. The record number is displayed after the buttons.<br>
+     The Back and Next buttons move through records entered for the form below. The record number is displayed after the Next button.<br>
      <button class="back">Back</button> <!-- Button to navigate to previous record   -->
      <button class="next">Next</button> <!-- Button to navigate to next record or to a new record  -->
+     <!-- A Meteor template reference which simply displays the record number -->
      {{> index}}
    </form>
    <!-- Form to enter data for a record -->
    <form class="data-record">
-      <!--  -->
+      <!-- A Meteor template reference to add the soft controls that were defined
+           using the hard controls above
+      -->
       {{> controls}}
-      After entering or changing the values of the controls, click this Add/Change button to save the changes to the database.<br>
-     <!--  -->
+      After entering or changing the values of the controls, click the Add/Change Record
+	  button to save the changes to the database.<br>
+     <!-- A button to submit the new or changed record  -->
       <input type="submit" value="Add/Change Record">
    </form>
   </div>
 </body>
 
-<!--  -->
+<!-- Below are the Meteor templates referenced above -->
+<!-- Template to display the current record number -->
 <template name="index">
+<!-- Calls a helper function named index that returns the record number-->
   {{index}}
 </template>
+
+<!-- Template to create the controls  -->
 <template name="controls">
-      {{#each tasks}}
+      <!-- For each document in cursor returned by helper function named controls...  -->
+      {{#each controls}}
+        <!-- Add a button to delete this control  -->
         <button class="delete">&times;</button>
+        <!-- For all controls, reference template named label to display the label -->
         {{> label}}
-        {{#if istext typ }}
-          {{> text}}
+        <!-- for text type control, the label is all that's created -->
+        <!-- Call helper function equals which returns true if typ == 'input'  -->
+        {{#if equals 'input' typ}}
+          <!-- Reference template named input to create input control  -->
+          {{> input}}
         {{else}}
-          {{#if isinput typ}}
-            {{> input}}
+          <!-- Call helper function equals which returns true if typ == 'select'  -->
+          {{#if equals 'select' typ}}
+            <!-- Reference template named select to create select control  -->
+            {{> select}}
           {{else}}
-            {{#if isselect typ}}
-              {{> select}}
+            <!-- Call helper function equals which returns true if typ == 'date'  -->
+            {{#if equals 'date' typ}}
+              <!-- Reference template named date to create date control  -->
+              {{> date}}
             {{else}}
-              {{#if isdate typ}}
-                {{> date}}
-              {{else}}
-                Type {{typ}} not implemented.
-              {{/if}}
+              <!-- This should never occur but for debugging, display message  -->
+              Type {{typ}} not implemented.
             {{/if}}
           {{/if}}
         {{/if}}
-        <br>
+        <br> <!-- new line after each soft control -->
       {{/each}}
 </template>
+
+<!-- Template to display control label -->
 <template name="label">
-        {{txt}} ({{nam}}:{{typ}})
+  <!-- lab is label for the soft control; nam and typ are control name and type -->
+  {{lab}} ({{nam}}:{{typ}}) <!-- just display this -->
 </template>
-<template name="text">
-</template>
+
+<!-- Template to create text input control -->
 <template name="input">
-          <input 
-            name="{{nam}}"
-            value="{{data nam 0 0}}"
-          >
+  <!-- Define input control with name equal to nam property from document-->
+  <input 
+    name="{{nam}}"
+    {{! Set the value of control named nam by calling global helper function data;
+         data function takes 3 arguments but only the first is used here
+	     (you can't omit trailing arguments with Meteor like you can with usual JS);
+		 data function references the current record number to return data for
+		 the current record for the control named nam.
+	}}
+    value="{{data nam 0 0}}"
+  >
 </template>
+
+<!-- Template to create a select control -->
 <template name="select">
-            <select 
-              name="{{nam}}"
-              value="{{data nam}}"
-            >
-              {{#each options opt}}
-                <option value="{{this}}"
-                  {{data ../nam this 'selected'}} 
-                  >
-                {{this}}
-                </option>
-              {{/each}}
-            </select>
+<!-- Define the select control with name = nam -->
+  <select 
+    name="{{nam}}"
+  >
+    <!-- For each option...
+     	 (helper function commaSplit splits document property opt on commas
+		   and returns an array of strings)
+    -->
+    {{#each commaSplit opt}}
+      <!-- Option value and text are identical here and are in {{this}} 
+           when using #each on array of strings
+      -->
+      <option value="{{this}}"
+        {{! Call helper function data with three arguments;
+             first argument is name of the control as usual but
+             it needs to reference the nam property from the 
+             outer #each loop, which requires use of ../ in front;
+             when 3 arguments are supplied, it returns the 
+             text in the 3rd argument if the 1st and 2nd
+             are equal; so, this inserts 'selected' if this option
+	         is equal to the data for this record for this control
+	   }}
+        {{data ../nam this 'selected'}} 
+      >
+        {{! Insert the option text; it's the same as option value }}
+        {{this}}
+      </option>
+    {{/each}}
+  </select>
 </template>
+
+<!-- Template to create a date control -->
 <template name="date">
-              <input 
-                class="datepicker" 
-                name="{{nam}}"
-                value="{{data nam 0 0}}"
-              >
+{{! Define a text input control }}
+  <input 
+    {{! All date controls will have class datepicker }}
+    class="datepicker" 
+    name="{{nam}}"
+    {{! Call the helper function named data to get the value, as described earlier }}
+    value="{{data nam 0 0}}"
+  >
 </template>
