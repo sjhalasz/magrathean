@@ -1,178 +1,275 @@
-
-<!--
+<!-- 
 magrathean.html
 An exercise for learning Meteor (see meteor.com for explanation of Meteor).
-See magrathean.md for full explanation.
+See public/magrathean.md for full explanation.
 sjhalasz@gmail.com
 
 This is a Meteor html file. 
+
 The following is ordinary HTML but with references to Meteor templates e.g.
-     {{> a_template_name }}.  The templates themselves are defined at the 
-	 bottom of the file.
+     {{> a_template_name }}.  The templates themselves are defined later in the file.
 -->
 
 <body>
-<!-- A container is recommended for Meteor -->
+<!--  A container is recommended for Meteor -->
   <div class="container">
-    
-    <h2>Add/Change/Delete Controls</h2>
-    
-    Add controls by:
-    <ul>
-      <li>entering a name for the data element (e.g. firstname),</li> 
-      <li>then selecting a type, </li>
-      <li>then entering a label (e.g. First Name), </li>
-      <li>then, for select type only, enter a list of options separated by commas (e.g. Detroit,Cleveland,Miami,Sarasota).</li>
-    </ul>
-    Change controls by defining the same name with different parameters<br><br>
-    Delete controls by clicking on the X button next to the control.<br><br>
-    <!-- Form for adding a new control -->
-    <form class="controlUpdate">
-      <!-- Input for the name of the control  -->
-      <input type="text" name="name" placeholder="Name of the control..." />
-      <!-- Select for the type of the control  -->
-      <select name="type">
-        <option value="text">text</option> <!-- Just text that's displayed, 
-		                                        not really a control -->
-        <option value="input">input</option> <!-- A text input control  -->
-        <option value="select">select</option> <!-- A select control -->
-        <option value="date">date</option> <!-- A JQuery UI datepicker control  -->
-      </select>
-      <!-- Input for the label for the control  -->
-      <input type="text" name="label" placeholder="Label..." />
-      <!-- Input for the options if this is a select control, comma separated text  -->
-      <input type="text" name="options" placeholder="Options for select..." />
-      <!-- Button to add a control, or, if the name used is the same as an existing control, to change it   -->
-      <input type="submit" value="Add/Change Control">
-    </form>
-    
-    <h2>Add/Change/Navigate Records</h2>
-
-    <!-- Form to navigate through data records  -->
-   <form class="recordNavigate">
-     The Back and Next buttons move through records already saved for the form below. The New button is for entering a new record.<br>
-     <button class="recordNew">New</button> <!-- Button to navigate to a new record  -->
-     <button class="recordBack">Back</button> <!-- Button to navigate to previous record   -->
-     <button class="recordNext">Next</button> <!-- Button to navigate to next record  -->
-     <!-- A Meteor template reference which simply displays the record number -->
-     {{> recordId}}
-   </form>
-   
-   <!-- Form to enter data for a record -->
-   <form class="recordUpdate">
-      After entering or changing the values of the controls below, click the Add/Change Record
-	  button to save the changes for the record.<br>
-     <!-- A button to submit the new or changed record  -->
-      <input type="submit" value="Add/Change Record"><br>
-      <!-- A Meteor template reference to add the soft controls that were defined
-           using the hard controls above
-      -->
-      {{> controls}}
-   </form>
+  {{>main}} <!-- everything starts with a root Meteor template -->
   </div>
 </body>
 
-<!-- Below are the Meteor templates referenced above -->
-<!-- Template to display the current record number -->
+<!--  Below are the Meteor templates referenced above -->
+  
+<!-- this is the root Meteor template for everything -->
+<template name="main">
+  {{#if definition}} {{! if in definition mode, allow switching to preview mode}}
+    <button class="preview">Switch to Preview Mode</button>
+  {{else}} {{! in preview mode...}}
+    <button class="definition">Switch to Definition Mode</button> {{! allow switching to definition mode}}
+  {{/if}} {{! end of #if definition}}
+
+  {{#if definition}} {{! if in definition mode, show introductory explanation}}
+    <h3> Magrathean Table Maker - A Meteor Learning Exercise</h3>
+    This learning exercise allows the creation of tables and creating and editing of fields and records. For full explanation see <a href="magrathean.md" target="_blank">this document.</a>
+  {{/if}} {{! end of #if definition; login follows and will appear in preview mode...}}
+
+  <br>{{>loginButtons}} {{! the login package control for creating account and logging in}}
+  You don't need to create a login to make changes, but if you do log in, 
+  your user id will be recorded and reported as making the update.
+
+  {{#if definition}} {{! if in definition mode, continue showing table/view/field definition stuff...}}
+    {{>tableSelect}}  {{! template for selecting table and view}}
+    {{>fieldUpdate}}  {{! template for adding/changing field definitions}}    
+  {{/if}} {{! end of #if definition; the following will appear in preview mode...}}
+
+  <br>{{>recordUpdate}}  {{! template for adding/changing/navigating records in both definition and preview}}
+  {{! the following are helpful explanations...}}
+    <ul>
+    <li>The Back and Next buttons move through records already saved for the form above. The New button is for entering a new record.</li>
+      <li>After entering or changing the values of the fields, click the Add/Change Record
+        button to save the changes for the record.</li>
+
+  {{#if definition}} {{! the following explanations are apropos definition mode only...}}
+      <li>To the left of each field are several controls. The first two controls relate to the field definition.
+      The &#10007; button will delete the field. The &#9998; button will copy the field
+        definition into the field definition form above where you can make changes.</li>
+      <li>The next three controls define how the fields are treated in the current view. 
+        The checkbox is to show or hide a field in the current view. 
+        In definition mode, the fields are still shown but are disabled.
+        In live mode they would not be shown at all.
+        The up and down arrows are to move
+        the ordering of the field up and down in the view. </li>
+        <li> The next two controls define how records are treated in the current view. 
+          The select control lets you sort the records ascending
+      or descending. The filter input will filter records that match exactly what you enter there.
+      Only one field can have a sort and only one field can have a filter, so when you set them,
+          they are removed from any field that previously had the sort or filter.</li>
+  {{/if}} {{! end if #if definition}}
+    </ul>
+</template>
+  
+<!--  Template to display the current record number -->
+<template name="lastModified">
+  Last modified by: {{lastModifiedUserName}} at {{lastModifiedDate}}
+</template>
+
+<!-- this template provides inputs for specifying a table and its current view name -->
+<template name="tableSelect">
+  {{! a form for specifying which table is being defined and used}}
+    <form class="tableSelect">
+      <input id="tableName" value="table_01"> {{!  this value must match default set in client js }}
+      <input type="submit" value="Add/Select Table">
+    Enter a table name here and click the Add/Select button to add or select
+    a table to use.<br>
+      {{>lastModified}} {{! displays the user and timestamp of the last table modification}}
+    </form>
+    
+    {{! a form for specifying which view is being defined and used with this table}}
+    <form class="viewSelect">
+      <input id="viewName" value="view_01"> {{!  this value must match default set in client js }}
+      <input type="submit" value="Add/Select View">
+    A view determines how a table is presented; that is, which fields 
+    are shown and in what order, and what record filtering and sorting is applied by default. 
+    Enter a view name here and click Add/Select to add or select the view to use.
+    </form>
+</template>
+
+<!-- this template provides a form for defining fields -->
+<template name="fieldUpdate">
+    {{!  Form for adding/changing a field definition}}
+    <form class="fieldUpdate">
+      {{!  Input for the name of the field  }}
+      <input type="text" id="name" placeholder="Name of the field..." />
+      {{!  Select for the type of the field  }}
+      <select id="type">
+        <option value="text">text</option> {{!  Just text that's displayed, not really a field }}
+        <option value="input">input</option> {{!  A text input field  }}
+        <option value="select">select</option> {{!  A select field }}
+        <option value="date">date</option> {{!  A JQuery UI datepicker field  }}
+      </select>
+      {{!  Input for the label for the field  }}
+      <input type="text" id="label" placeholder="Label..." />
+      {{!  Input for the options if this is a select field, as comma separated text  }}
+      <input type="text" id="options" placeholder="Options for select..." />
+      {{!  Button to add a field, or, if the name used is the same as an existing field, to change it   }}
+      <input type="submit" value="Add/Change Field">
+    <br>Add or change fields for the current table by: 
+      (1) entering a name for the field (e.g. firstname); 
+      (2) selecting a type, e.g. input, select, or date; 
+      (3) entering a label (e.g. First Name); 
+      (4) for select type only, enter a list of options separated by commas (e.g. Detroit,Cleveland,Miami,Sarasota). To change a field, use the same name with different parameters.
+    </form>
+</template>
+
+<!-- this template provides a form for adding/changing/navigating records -->
+<template name="recordUpdate">
+  {{!  Form to handle data records  }}
+  <form class="recordUpdate">
+     {{!  A button to submit the new or changed record  }}
+      <input type="submit" value="Add/Change Record">
+     <button class="recordNew">New</button> {{!  Button to navigate to a new record  }}
+     <button class="recordBack">Back</button> {{!  Button to navigate to previous record   }}
+     <button class="recordNext">Next</button> {{!  Button to navigate to next record  }}
+     {{!  A Meteor template reference which simply displays the record number }}
+     {{>recordId}}<br><br>
+      {{!  A Meteor template reference to add the fields that were defined using the form above }}
+      {{>fields}}
+   </form>
+</template>
+
 <template name="recordId">
-<!-- Calls a helper function named index that returns the record number -->
+{{!  Calls a helper function named index that returns the record number }}
   Record number {{recordId}}
 </template>
 
-<!-- Template to create the controls  -->
-<template name="controls">
-      <!-- For each document in cursor returned by helper function named controls...  -->
-      {{#each controls}}
-        <!-- Add a button to delete this control  -->
-        <button class="controlDelete">&times;</button>
-        <!-- For all controls, reference template named label to display the label -->
-        {{> label}}
-        <!-- for text type control, the label is all that's created -->
-        <!-- Call helper function equals which returns true if typ == 'input'  -->
-        {{#if equals 'input' type}}
-          <!-- Reference template named input to create input control  -->
-          {{> input}}
-        {{else}}
-          <!-- Call helper function equals which returns true if typ == 'select'  -->
-          {{#if equals 'select' type}}
-            <!-- Reference template named select to create select control  -->
-            {{> select}}
-          {{else}}
-            <!-- Call helper function equals which returns true if typ == 'date'  -->
-            {{#if equals 'date' type}}
-              <!-- Reference template named date to create date control  -->
-              {{> date}}
-            {{else}} 
-              <!-- For everything else, just leave it at label, e.g. text  -->
-            {{/if}}
-          {{/if}}
-        {{/if}}
-        <br> <!-- new line after each soft control -->
-      {{/each}}
+<!--  Template to create the fields  -->
+<template name="fields">
+  {{!  For each document in cursor returned by helper function named "fields"...  }}
+  {{#each fields}}
+    {{#if showField name}} {{! if in definition mode or field is not hidden...}}
+      {{! field and view definition buttons are shown in definition mode only...}}
+      {{#if definition}}
+        {{>recordControls}}
+      {{/if}} {{! end if #if definition}}
+      {{!  For all fields, reference template named "label"" to display the label }}
+      {{!  for text type field, the label is all that's created }}
+      {{>label}}
+      {{>fieldCreate}}
+    {{/if}}
+  {{/each}}
 </template>
 
-<!-- Template to display control label -->
+<!-- this template creates controls in definition mode for defining fields and views -->
+<template name="recordControls">
+  {{!  button to delete this field  }}
+  <button class="fieldDelete">&#10007;</button>
+  {{!  button to edit this field  }}
+  <button class="fieldEdit">&#9998;</button>
+  {{!  checkbox to show/hide this field  }}
+  <input type="checkbox" class="fieldShow" {{show name "checked"}}>
+  {{!  button to move this field up }}
+  <button class="fieldUp">&uarr;</button>
+  {{!  button to move this field down }}
+  <button class="fieldDown">&darr;</button>
+  {{!  select to sort records on this field }}
+  <select class="fieldSort">
+    <option value=""></option>
+    {{! helper function "sort" returns "selected" if sort property in view for field "name" has value...}}
+    <option value="asc" {{sort name "asc" "selected"}}>Asc</option>
+    <option value="desc" {{sort name "desc" "selected"}}>Desc</option>
+  </select>
+  {{!  input to filter on this field }}
+  {{!  helper function "filter" returns value of filter for field "name" if present in current view}}
+  <input class="fieldFilter" placeholder="Filter..." value="{{filter name}}">
+</template>
+
+<!-- this template creates a particular field depending on type -->
+<template name="fieldCreate">
+  {{!  Call helper function "equals"" which returns true if type == 'input'  }}
+  {{#if equals 'input' type}}
+    {{!  Reference template named "input"" to create input field  }}
+    {{> input}}
+  {{else}} 
+    {{!  Call helper function "equals" which returns true if type == 'select'  }}
+    {{#if equals 'select' type}}
+      {{!  Reference template named select to create select field  }}
+      {{> select}}
+    {{else}}
+      {{!  Call helper function "equals" which returns true if type == 'date'  }}
+      {{#if equals 'date' type}}
+        {{!  Reference template named "date"" to create date field  }}
+        {{> date}}
+      {{else}} 
+        {{!  For everything else, just leave it at label, e.g. text  }}
+      {{/if}}
+    {{/if}}
+  {{/if}}
+  {{#if definition}} <br> {{/if}} {{!  new line after each field in definition mode only}}
+</template>
+
+<!--  Template to display field label -->
 <template name="label">
-  <!-- lab is label for the soft control; nam and typ are control name and type -->
-  {{label}} ({{name}};{{type}}) <!-- just display this -->
+  {{!  "label"" is label for the field; name is field name displayed only in definition mode }}
+  {{label}} {{#if definition}} ({{name}}) {{/if}} {{!  just display this }}
 </template>
 
-<!-- Template to create text input control -->
+<!--  Template to create text input field -->
 <template name="input">
-  <!-- Define input control with name equal to nam property from document-->
+  {{!  Define input field with name equal to name property from document}}
   <input 
     name="{{name}}"
-    {{! Set the value of control by calling global helper function data;
-         data function takes 3 arguments but only the first is used here
-	     (you can't omit trailing arguments with Meteor like you can with usual JS);
-		 data function references the current record number to return data for
-		 the current record for the control named nam.
-	}}
+    {{! Set the value of field by calling global helper function data;
+        data function takes 3 arguments but only the first is used here
+        (you cant omit trailing arguments with Meteor like you can with usual JS);
+        data function references the current record number to return data for
+        the current record for the field named name.
+    }}
     value="{{data name 0 0}}"
+    {{disabled name}} {{! insert "disabled" if in definition mode and field is hidden in current view }}
   >
 </template>
 
-<!-- Template to create a select control -->
+<!--  Template to create a select field -->
 <template name="select">
-<!-- Define the select control with name = nam -->
+{{!  Define the select field }}
   <select 
-    name="{{name}}"
+    name="{{name}}"  {{! the name of the field}}
+    {{disabled name}} {{! insert "disabled" if in definition mode and field is hidden in current view }}
   >
-    <!-- For each option...
-     	 (helper function commaSplit splits document property opt on commas
-		   and returns an array of strings)
-    -->
+    {{!  For each option...
+         (helper function commaSplit splits document property opt on commas and returns an array of strings)
+    }}
     {{#each commaSplit options}}
-      <!-- Option value and text are identical here and are in {{this}} 
+      {{!  Option value and text are identical here and are in {{this}} 
            when using #each on array of strings
-      -->
+      }}
       <option value="{{this}}"
         {{! Call helper function data with three arguments;
-             first argument is name of the control as usual but
-             it needs to reference the nam property from the 
+             first argument is name of the field as usual but
+             it needs to reference the name property from the 
              outer #each loop, which requires use of ../ in front;
              when 3 arguments are supplied, it returns the 
              text in the 3rd argument if the 1st and 2nd
              are equal; so, this inserts 'selected' if this option
-	         is equal to the data for this record for this control
-	   }}
+             is equal to the data for this record for this field
+       }}
         {{data ../name this 'selected'}} 
       >
-        {{! Insert the option text; it's the same as option value }}
-        {{this}}
+      {{! Insert the option text; it's the same as option value }}
+      {{this}}
       </option>
     {{/each}}
   </select>
 </template>
 
-<!-- Template to create a date control -->
+<!--  Template to create a date field -->
 <template name="date">
-{{! Define a text input control }}
+{{! Define a text input field }}
   <input 
-    {{! All date controls will have class datepicker }}
+    {{! All date fields will have class datepicker }}
     class="datepicker" 
-    name="{{name}}"
+    name="{{name}}" {{! the name of the field}}
     {{! Call the helper function named data to get the value, as described earlier }}
     value="{{data name 0 0}}"
+    {{disabled name}} {{! insert "disabled" if in definition mode and field is hidden in current view }}
   >
 </template>
