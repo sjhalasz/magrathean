@@ -22,6 +22,21 @@ Session.setDefault("definitionMode", true);
 
 // *********************** helper functions ************************** 
   
+
+// helper functions for the "tableSelect" template
+Template.tableSelect.helpers({
+
+  // returns the current table name
+  "tableName": function(){
+    return Session.get("tableName");
+  },  
+  
+  // returns the current view name
+  "viewName": function(){
+    return Session.get("viewName");
+  }
+});
+
 // helper function for Meteor template named recordId
 Template.recordId.helpers({
   // this function simply returns the record id or [new] if recordId is 0
