@@ -153,7 +153,14 @@ The following is ordinary HTML but with references to Meteor templates e.g.
       {{!  For all fields, reference template named "label"" to display the label }}
       {{!  for text type field, the label is all that's created }}
       {{>label}}
-      {{>fieldCreate}}
+      {{! 
+          This includes the template that has the same name as the type property 
+          of the field object. It avoids having to write an #if ... else statement
+          for every field type.  E.g. field type "input" will include the template
+          named "input".
+      }}
+      {{>Template.dynamic template=type}}
+      {{#if definition}} <br> {{/if}} {{!  new line after each field in definition mode only}}
     {{/if}}
   {{/each}}
 </template>
@@ -180,30 +187,6 @@ The following is ordinary HTML but with references to Meteor templates e.g.
   {{!  input to filter on this field }}
   {{!  helper function "filter" returns value of filter for field "name" if present in current view}}
   <input class="fieldFilter" placeholder="Filter..." value="{{filter name}}">
-</template>
-
-<!-- this template creates a particular field depending on type -->
-<template name="fieldCreate">
-  {{!  Call helper function "equals"" which returns true if type == 'input'  }}
-  {{#if equals 'input' type}}
-    {{!  Reference template named "input"" to create input field  }}
-    {{> input}}
-  {{else}} 
-    {{!  Call helper function "equals" which returns true if type == 'select'  }}
-    {{#if equals 'select' type}}
-      {{!  Reference template named select to create select field  }}
-      {{> select}}
-    {{else}}
-      {{!  Call helper function "equals" which returns true if type == 'date'  }}
-      {{#if equals 'date' type}}
-        {{!  Reference template named "date"" to create date field  }}
-        {{> date}}
-      {{else}} 
-        {{!  For everything else, just leave it at label, e.g. text  }}
-      {{/if}}
-    {{/if}}
-  {{/if}}
-  {{#if definition}} <br> {{/if}} {{!  new line after each field in definition mode only}}
 </template>
 
 <!--  Template to display field label -->
