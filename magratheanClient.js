@@ -62,12 +62,6 @@ Template.fields.helpers({
     
   });
 
-  Template.fieldCreate.helpers({
-    // this function returns true if its arguments are equal
-    // it's used in the fields template with #if to use the correct template for the field
-    equals:function(a, b) {return a === b;}
-}); // end of Template.fields.helpers
-
 Template.recordControls.helpers({
 
   // this function returns the filter value specified for this field in the current view
