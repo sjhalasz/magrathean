@@ -76,7 +76,7 @@ The following is ordinary HTML but with references to Meteor templates e.g.
 <template name="tableSelect">
   {{! a form for specifying which table is being defined and used}}
     <form class="tableSelect">
-      <input id="tableName" value="table_01"> {{!  this value must match default set in client js }}
+      <input id="tableName" value={{tableName}}>
       <input type="submit" value="Add/Select Table">
     Enter a table name here and click the Add/Select button to add or select
     a table to use.<br>
@@ -85,7 +85,7 @@ The following is ordinary HTML but with references to Meteor templates e.g.
     
     {{! a form for specifying which view is being defined and used with this table}}
     <form class="viewSelect">
-      <input id="viewName" value="view_01"> {{!  this value must match default set in client js }}
+      <input id="viewName" value={{viewName}}> 
       <input type="submit" value="Add/Select View">
     A view determines how a table is presented; that is, which fields 
     are shown and in what order, and what record filtering and sorting is applied by default. 
