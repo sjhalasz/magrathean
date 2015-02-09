@@ -196,10 +196,8 @@ Template.lastModified.helpers({
 // **************************** event handler code ********************************
 
 // this callback when date template is rendered initializes JQuery UI datepicker;
-// it's sloppy; this should only be called on current instance, not redundantly on all date fields;
-// but... I can't get anything else to work
 Template.date.rendered = function() {
-  $(".datepicker").datepicker();
+  $(this.lastNode).datepicker();
 };
 
 // callbacks for all controls
