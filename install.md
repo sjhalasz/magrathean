@@ -18,6 +18,3 @@ rm -r temp
 cd magrathean
 meteor remove autopublish insecure
 meteor add accounts-password accounts-ui
-meteor add mike:mocha
-sudo apt-get install npm
-sudo npm install -g nvm
