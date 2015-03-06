@@ -211,12 +211,13 @@ function lock(tableName, fn){
   if(1 < Lock.find({"tableName": tableName}).count()){
     // remove my lock document
     Lock.remove({"_id": lockId});
-    // randomly wait 0, 100, or 200 milliseconds and try again
-    setTimeout(function(){lock(tableName, fn);}, 100 * Math.floor(Math.random() * 3));
+    // randomly wait 0, 1000, or 2000 milliseconds and try again
+    setTimeout(function(){lock(tableName, fn);}, 1000 * Math.floor(Math.random() * 3));
+  } else {
+    // I have the lock so run my process now
+    fn(); 
+    // remove my lock
+    Lock.remove({"_id": lockId});
   }
-  // I have the lock so run my process now
-  fn(); 
-  // remove my lock
-  Lock.remove({"_id": lockId});
 }
 
