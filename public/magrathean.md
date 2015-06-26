@@ -1,7 +1,7 @@
 # Magrathean Table Maker: An Exercise for Learning Meteor 
 sjhalasz@gmail.com
 
-See meteor.com for explanation of Meteor. The code is saved at [this github repository](https://github.com/sjhalasz/magrathean). The code is live at [this Meteor site](http://sjhalasz03.meteor.com).
+See meteor.com for explanation of Meteor. The code is saved at [this github repository](https://github.com/sjhalasz/magrathean). The code is live at [this Meteor site](http://sjhalasz03.meteor.com). Please note that all changes you make at the live site to data structure and data values are public and global to all users.
 
 As an exercise for learning Meteor, I'm implementing a record-keeping application that I previously started to write using the lamp stack for my wife's planned but never launched medical clinic. She wanted a way to design and use data collections herself without programmers because she was afraid I might die some day or at least become senile.
 
