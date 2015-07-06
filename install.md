@@ -1,3 +1,5 @@
+Some notes to remind me how to install meteor, git and jqueryui to run this on my local machine...
+
 sudo apt-get install curl  
 curl https://install.meteor.com | sh  
 sudo apt-get install git  
